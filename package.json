@@ -1,0 +1,30 @@
+{
+  "name": "java-number-encoding",
+  "version": "0.0.1",
+  "description": "Encode/Decode Varint and Decimal type numbers to easily store them in cassandra.",
+  "main": "encoder.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hardikj/some"
+  },
+  "keywords": [
+    "encoder",
+    "decoder",
+    "decimal",
+    "varint",
+    "java"
+  ],
+  "devDependencies": {
+    "mocha": "x.x.x"
+  },
+  "author": "Hardik Juneja <hjuneja@wikimedia.org>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hardikj"
+  },
+  "homepage": "https://github.com/hardikj/some",
+  "dependencies": {}
+}
