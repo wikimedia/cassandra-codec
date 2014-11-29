@@ -1,35 +1,53 @@
 "use strict";
 var bignum = require('bignum');
 
-var encoder = function(){};
+var codec = {};
 
-encoder.prototype.encodeVarInt = function(n) {
+function makeMasks(n) {
+    var masks = [null];
+    var hex = 'ff';
+    for (var i = 1; i <= n; i++) {
+        masks.push(bignum(hex, 16));
+        hex += 'ff';
+    }
+    return masks;
+}
+var masks = makeMasks(9);
+
+/**
+ * Encode a JS Number to a varint using the
+ * java.math.BigInteger(n).toByteArray() format.
+ *
+ * @param {number} n, the Number to encode
+ * @return {Buffer}
+ */
+codec.encodeVarInt = function(n) {
     /*jshint bitwise: false*/
     var res;
     var bn, bnBits;
-    if (n >= 2147483648 && n < 2147483648) {
+    var bytes = [];
+    if (n >= -2147483648 && n < 2147483648) {
         // Fast path for 32-bit ints
-        var bytes = [];
         var b;
         do {
             b = n & 0xff;
             bytes.push(b);
-            n = n >> 8;
-        } while ((n !== 0 && n !== -1) || b === 0x80);
-
-        if (n === -1) {
-            bytes.push(0x80);
+            n >>= 8;
+        } while ((n !== 0 && n !== -1) || (b & 0x80) !== (n & 0x80));
+        if (n < 0) {
+            // Set sign bit
+            bytes[bytes.length - 1] = b | 0x80;
         }
+
         return new Buffer(bytes.reverse());
     } else if (n < 0) {
+        // bignum can only do bitwise arithmetic on unsigned ints
         bn = bignum(-1 * (n + 1));
-        var mask = new Buffer(Math.floor(bn.bitLength() / 8) + 1);
-        mask.fill(0xff);
+        var mask = masks[Math.floor(bn.bitLength() / 8 + 1)];
         // Invert the bits
-        bnBits = bn.xor(bignum.fromBuffer(mask)).toBuffer();
-        res = new Buffer(bnBits.length + 1);
-        res[0] = 0x80;
-        bnBits.copy(res, 1, 0);
+        res = bn.xor(mask).toBuffer();
+        // Set sign bit
+        res[0] = 0x80 | res[0];
         return res;
     } else {
         bnBits = bignum(n).toBuffer();
@@ -45,42 +63,60 @@ encoder.prototype.encodeVarInt = function(n) {
     }
 };
 
-encoder.prototype.decodeVarInt =  function (bytes) {
+function makeSubs(n) {
+    var subs = [null];
+    for (var i = 1; i <= n; i++) {
+        subs.push(bignum(1).shiftLeft(i*8));
+    }
+    return subs;
+}
+var subs = makeSubs(9);
+
+/**
+ * Decode a buffer holding a varint using the
+ * java.math.BigInteger(n).toByteArray() format to a JavaScript Number.
+ *
+ * @param {Buffer} bytes
+ * @return {Number}
+ */
+codec.decodeVarInt =  function (bytes) {
     /*jshint bitwise: false*/
-    //console.log(bytes.length, bytes.toString('hex'));
 
     var isNeg = false;
-    if (bytes[0] === 0x80) {
+    if (bytes[0] & 0x80) {
         isNeg = true;
-        bytes = bytes.slice(1);
     }
 
-    var n;
-    if (bytes.length <= 3 || !isNeg && bytes.length <= 4) {
+    var n, i;
+    if (bytes.length <= 4) {
         // Fast path for small ints
         n = 0;
-        for (var i = 0; i < bytes.length; i++) {
-            n = n << 8;
-            n = n | bytes[i];
+        for (i = 0; i < bytes.length; i++) {
+            n <<= 8;
+            n |= bytes[i];
         }
 
         if (isNeg) {
-            // This needs to fit into 32 bits, hence the <= 3 limit above
-            return n - (1 << bytes.length * 8);
+            // Switch n to unsigned interpretation
+            n >>>= 0;
+            if (bytes.length === 4) {
+                return bignum(n)
+                    .sub(subs[bytes.length]).toNumber();
+            } else {
+                // Each part needs to fit into 32 bits
+                return n - (1 << bytes.length * 8);
+            }
         } else {
             return n;
         }
     }
 
-    n = bignum.fromBuffer(bytes, { endian: 'big', size: 'auto' });
+    n = bignum(bytes.toString('hex'), 16);
     if (isNeg) {
-        var mask = new Buffer(bytes.length);
-        mask.fill(0xff);
-        return -1 * n.xor(bignum.fromBuffer(mask, { endian: 'big', size: 'auto' }))
-                .toNumber() - 1;
+        return n.sub(subs[bytes.length]).toNumber();
     } else {
         return n.toNumber();
     }
 };
 
-module.exports = encoder;
+module.exports = codec;
