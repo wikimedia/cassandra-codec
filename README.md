@@ -1,4 +1,5 @@
 # Cassandra / Java number encoding and decoding
+[![Build Status](https://travis-ci.org/wikimedia/cassandra-codec?branch=master)](https://travis-ci.org/wikimedia/cassandra-codec)
 
 ## Usage:
 
