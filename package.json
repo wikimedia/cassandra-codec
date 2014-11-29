@@ -1,7 +1,7 @@
 {
   "name": "cassandra-codec",
   "version": "0.0.1",
-  "description": "Encode/Decode Varint and Decimal type numbers to easily store them in cassandra.",
+  "description": "Java BigInteger varint and Decimal codec as used by Cassandra.",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
