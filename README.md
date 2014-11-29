@@ -6,12 +6,12 @@
 npm install cassandra-codec
 ```
 
-### `#encodeVarInt(i: int): Buffer`
+### `#encodeVarInt(i: Number): Buffer`
 
 Encodes a JavaScript `Number` into a `Buffer`, using the same format as
 `java.math.BigInteger`'s `toByteArray()` method.
 
-### `#decodeVarInt(i: int): Buffer`
+### `#decodeVarInt(b: Buffer): Number`
 
 Decodes a `Buffer` holding a Varint in `java.math.BigInteger`'s
 `toByteArray()` format into a JavaScript `Number`.
