@@ -1,5 +1,9 @@
+"use strict";
 var assert = require('assert');
 var codec = require('../index');
+
+// mocha defines to avoid JSHint breakage
+/* global describe, it, before, beforeEach, after, afterEach */
 
 var valuePairs = {
     "00": 0,

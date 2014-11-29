@@ -1,14 +1,14 @@
 {
-  "name": "java-number-encoding",
+  "name": "cassandra-codec",
   "version": "0.0.1",
   "description": "Encode/Decode Varint and Decimal type numbers to easily store them in cassandra.",
-  "main": "encoder.js",
+  "main": "index.js",
   "scripts": {
     "test": "mocha"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hardikj/some"
+    "url": "https://github.com/wikimedia/cassandra-codec"
   },
   "keywords": [
     "encoder",
@@ -16,15 +16,20 @@
     "decimal",
     "varint"
   ],
-  "devDependencies": {
-    "mocha": "x.x.x",
+  "dependencies": {
     "bignum": "^0.9.0"
   },
+  "devDependencies": {
+    "mocha": "x.x.x",
+    "mocha-jshint": "0.0.9"
+  },
   "author": "Hardik Juneja <hjuneja@wikimedia.org>",
+  "contributors": [
+      "Gabriel Wicke <gwicke@wikimedia.org"
+  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/hardikj"
+    "url": "https://github.com/wikimedia/cassandra-codec"
   },
-  "homepage": "https://github.com/hardikj/some",
-  "dependencies": {}
+  "homepage": "https://github.com/wikimedia/cassandra-codec"
 }
