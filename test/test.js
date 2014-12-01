@@ -45,3 +45,13 @@ describe('varints', function() {
     });
 
 });
+
+describe('decimal', function() {
+    it('value pairs', function() {
+        assert.equal(codec.decodeDecimal(codec.encodeDecimal('-1222.142345324334123555')), -1222.142345324334123555);
+        assert.equal(codec.decodeDecimal(codec.encodeDecimal('2.142345324334123555')), 2.142345324334123555);
+        assert.equal(codec.decodeDecimal(codec.encodeDecimal('1042342234234.123423435647768234')), 1042342234234.123423435647768234);
+        //var b = new Buffer("\x00\x00\x00\x12\r'\xFDI\xAD\x80f\x11g\xDCfV\xAA");
+        //assert.equal('00000012BDBF5E2C1D7C4875DD'.toLowerCase(),codec.encodeVarInt('-1222.142345324334123555').toString('hex'));
+    });
+});

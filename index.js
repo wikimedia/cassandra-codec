@@ -119,4 +119,66 @@ codec.decodeVarInt =  function (bytes) {
     }
 };
 
+function getNumberParts(x) {
+    var scale = 0;
+    x = Number(x);
+    var sig = x > 0 ? 0 : 1;
+    if (sig) {
+        x *= -1;
+    }
+    var splitx = x.toString().split(".");
+    if(splitx.length < 2) {
+        return {
+            sign: sig,
+            scale: 0,
+            digits: x
+        };
+    }
+
+    scale =  splitx[1].length || 0;
+    var digits =  x.toFixed() + (x-x.toFixed())*Math.pow(10,scale+1);
+    return {
+        sign: sig,
+        scale: scale,
+        digits: digits,
+    };
+}
+
+
+function getNumberParts(numberString) {
+    if (/^\-?\d+\.\d+$/.test(numberString)) {
+        var bits = numberString.split(/\./);
+        return {
+            scale: bits[1].length,
+            value: Number(bits.join(''))
+        };
+    } else if (/^\-?\d+$/.test(numberString)) {
+        return {
+            scale: 0,
+            value: Number(numberString)
+        };
+    } else {
+        throw new Error("Invalid Decimal: " + numberString);
+    }
+}
+
+
+codec.encodeDecimal = function (n) {
+    var parts = getNumberParts(n);
+    var unscaled = parts.value;
+    var scale = new Buffer(4);
+    scale.writeUInt32BE(parts.scale, 0);
+    unscaled = codec.encodeVarInt(unscaled);
+    return Buffer.concat([scale, unscaled]);
+};
+
+codec.decodeDecimal = function (bytes) {
+    var unscaled = bytes.slice(4);
+    var scale = bytes.slice(0,4);
+    scale = scale.readUInt32BE(0);
+    unscaled = codec.decodeVarInt(unscaled);
+    var decimal = unscaled.toString()/Math.pow(10,scale);
+    return decimal;
+};
+
 module.exports = codec;
