@@ -21,7 +21,8 @@
   },
   "devDependencies": {
     "mocha": "x.x.x",
-    "mocha-jshint": "0.0.9"
+    "mocha-jshint": "0.0.9",
+    "jsverify": "0.4.5"
   },
   "author": "Hardik Juneja <hjuneja@wikimedia.org>",
   "contributors": [

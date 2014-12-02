@@ -1,6 +1,7 @@
 "use strict";
 var assert = require('assert');
 var codec = require('../index');
+var jsc = require('jsverify');
 
 // mocha defines to avoid JSHint breakage
 /* global describe, it, before, beforeEach, after, afterEach */
@@ -42,6 +43,12 @@ describe('varints', function() {
             }
             assert.equal(i, codec.decodeVarInt(codec.encodeVarInt(i)));
         }
+    });
+
+    jsc.property("random integers", "integer", function (n) {
+        var encoded = codec.encodeVarInt(n).toString('hex');
+        var decoded = codec.decodeVarInt(new Buffer(encoded, 'hex'));
+        return decoded === n;
     });
 
 });
