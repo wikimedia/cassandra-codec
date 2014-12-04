@@ -11,14 +11,6 @@ class TestVarint {
         return new String(hexChars);
     }
 
-    public static byte[] intToByteArray(int value, int size) {
-        byte[] bytes = new byte[size];
-        for (int index = 0; index < bytes.length; index++) {
-            bytes[index] = (byte) (value >>> (8 * (size - index - 1)));
-        }
-        return bytes;
-    }
-
     public static void main(String[] args) {
         if (args.length > 0) {
             System.out.println(args[0]);
@@ -30,6 +22,7 @@ class TestVarint {
                     buff.order(java.nio.ByteOrder.BIG_ENDIAN);
                     byte[] arr1 = buff.putInt(bInt).array();
                     byte[] arr2 = bDec.unscaledValue().toByteArray();
+                    System.out.println(bytesToHex(arr1));
                     byte[] c = new byte[arr1.length + arr2.length];
                     System.arraycopy(arr1, 0, c, 0, arr1.length);
                     System.arraycopy(arr2, 0, c, arr1.length, arr2.length);

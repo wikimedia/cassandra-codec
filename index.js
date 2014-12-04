@@ -119,33 +119,10 @@ codec.decodeVarInt =  function (bytes) {
     }
 };
 
-function getNumberParts(x) {
-    var scale = 0;
-    x = Number(x);
-    var sig = x > 0 ? 0 : 1;
-    if (sig) {
-        x *= -1;
-    }
-    var splitx = x.toString().split(".");
-    if(splitx.length < 2) {
-        return {
-            sign: sig,
-            scale: 0,
-            digits: x
-        };
-    }
-
-    scale =  splitx[1].length || 0;
-    var digits =  x.toFixed() + (x-x.toFixed())*Math.pow(10,scale+1);
-    return {
-        sign: sig,
-        scale: scale,
-        digits: digits,
-    };
-}
-
-
 function getNumberParts(numberString) {
+    if(numberString.constructor !== String) {
+        numberString = numberString.toString();
+    }
     if (/^\-?\d+\.\d+$/.test(numberString)) {
         var bits = numberString.split(/\./);
         return {
@@ -162,7 +139,6 @@ function getNumberParts(numberString) {
     }
 }
 
-
 codec.encodeDecimal = function (n) {
     var parts = getNumberParts(n);
     var unscaled = parts.value;
@@ -176,8 +152,26 @@ codec.decodeDecimal = function (bytes) {
     var unscaled = bytes.slice(4);
     var scale = bytes.slice(0,4);
     scale = scale.readUInt32BE(0);
-    unscaled = codec.decodeVarInt(unscaled);
-    var decimal = unscaled.toString()/Math.pow(10,scale);
+    unscaled = codec.decodeVarInt(unscaled).toString();
+    var decimal = unscaled;
+    if (scale) {
+        if (scale>unscaled.length-1) {
+            // for cases like , 0.001209547347587
+            //strip -ve sign first
+            var sign = 0;
+            if(/^-/.test(unscaled)) {
+                sign = 1;
+                unscaled = unscaled.slice(1);
+            }
+            for (var i = scale+1-unscaled.length; i > 0; i--) {
+                unscaled = "0" + unscaled;
+            }
+            if (sign) {
+                unscaled = "-" + unscaled;
+            }
+        }
+        decimal = unscaled.slice(0, unscaled.length-scale) + "." + unscaled.slice(unscaled.length-scale);
+    }
     return decimal;
 };
 

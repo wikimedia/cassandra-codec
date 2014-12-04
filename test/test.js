@@ -5,7 +5,7 @@ var codec = require('../index');
 // mocha defines to avoid JSHint breakage
 /* global describe, it, before, beforeEach, after, afterEach */
 
-var valuePairs = {
+var varIntValuePairs = {
     "00": 0,
     "01": 1,
     "ff": -1,
@@ -23,12 +23,25 @@ var valuePairs = {
     "010000000000000180": 18446744073709552000
 };
 
+var decimalValuePair = {
+    "0000000001": "1",
+    "0000000000": "0",
+    "000000010C": "1.2",
+    "0000000A029C4B647C": "1.1212121212",
+    "0000000A0B1D859A843B" : "1222.1423453243",
+    "000000070B3A73593407": "1234567.1234567",
+    "0000000FFEE6615C297D": "-0.001209547347587",
+    "0000001191FE080034D4": "-0.00120954734758700",
+    "0000000D03083D16B3": "0.0013023123123",
+    "000000073B9ACED2": "100.0001234"
+};
+
 describe('varints', function() {
     it('value pairs', function() {
-        for (var bytes in valuePairs) {
+        for (var bytes in varIntValuePairs) {
             assert.equal(bytes.toLowerCase(),
-                    codec.encodeVarInt(valuePairs[bytes]).toString('hex'));
-            assert.equal(valuePairs[bytes],
+                    codec.encodeVarInt(varIntValuePairs[bytes]).toString('hex'));
+            assert.equal(varIntValuePairs[bytes],
                     codec.decodeVarInt(new Buffer(bytes, 'hex')));
         }
     });
@@ -47,11 +60,11 @@ describe('varints', function() {
 });
 
 describe('decimal', function() {
-    it('value pairs', function() {
-        assert.equal(codec.decodeDecimal(codec.encodeDecimal('-1222.142345324334123555')), -1222.142345324334123555);
-        assert.equal(codec.decodeDecimal(codec.encodeDecimal('2.142345324334123555')), 2.142345324334123555);
-        assert.equal(codec.decodeDecimal(codec.encodeDecimal('1042342234234.123423435647768234')), 1042342234234.123423435647768234);
-        //var b = new Buffer("\x00\x00\x00\x12\r'\xFDI\xAD\x80f\x11g\xDCfV\xAA");
-        //assert.equal('00000012BDBF5E2C1D7C4875DD'.toLowerCase(),codec.encodeVarInt('-1222.142345324334123555').toString('hex'));
+    it('value pairs and Round-trip', function() {
+        assert.equal(codec.decodeDecimal(codec.encodeDecimal('-1222.142345324')), "-1222.142345324");
+        for (var bytes in decimalValuePair) {
+            assert.equal(bytes.toLowerCase(), codec.encodeDecimal(decimalValuePair[bytes]).toString('hex'));
+            assert.equal(decimalValuePair[bytes], codec.decodeDecimal(new Buffer(bytes, 'hex')));
+        }
     });
 });
