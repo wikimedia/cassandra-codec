@@ -1,6 +1,6 @@
 {
   "name": "cassandra-codec",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Java BigInteger varint and Decimal codec as used by Cassandra.",
   "main": "index.js",
   "scripts": {
