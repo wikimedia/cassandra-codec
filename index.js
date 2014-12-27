@@ -82,6 +82,10 @@ var subs = makeSubs(9);
 codec.decodeVarInt =  function (bytes) {
     /*jshint bitwise: false*/
 
+    if (typeof bytes === 'number') {
+        return bytes;
+    }
+    
     var isNeg = false;
     if (bytes[0] & 0x80) {
         isNeg = true;
@@ -149,6 +153,9 @@ codec.encodeDecimal = function (n) {
 };
 
 codec.decodeDecimal = function (bytes) {
+    if (typeof bytes === 'string') {
+        return bytes;
+    }
     var unscaled = bytes.slice(4);
     var scale = bytes.slice(0,4);
     scale = scale.readUInt32BE(0);
