@@ -23,6 +23,9 @@ var masks = makeMasks(9);
  */
 codec.encodeVarInt = function(n) {
     /*jshint bitwise: false*/
+    if(typeof n !== 'number') {
+        throw new Error('Codec: encodeVarInt() accepts only numbers!');
+    }
     var res;
     var bn, bnBits;
     var bytes = [];
