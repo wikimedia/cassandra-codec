@@ -58,6 +58,18 @@ describe('varints', function() {
         }
     });
 
+    it('encode error', function() {
+        assert.throws(function() {
+            codec.encodeVarInt("123 test");
+        }, Error);
+    });
+    
+    it('decode error', function() {
+        assert.throws(function() {
+            codec.decodeVarInt(123);
+        }, Error);
+    });
+    
     jsc.property("random integers", "integer", function (n) {
         var encoded = codec.encodeVarInt(n).toString('hex');
         var decoded = codec.decodeVarInt(new Buffer(encoded, 'hex'));
@@ -75,3 +87,4 @@ describe('decimal', function() {
         }
     });
 });
+

@@ -23,6 +23,9 @@ var masks = makeMasks(9);
  */
 codec.encodeVarInt = function(n) {
     /*jshint bitwise: false*/
+    if(typeof n !== 'number') {
+        throw new Error('Codec: encodeVarInt() accepts only numbers!');
+    }
     var res;
     var bn, bnBits;
     var bytes = [];
@@ -82,6 +85,10 @@ var subs = makeSubs(9);
 codec.decodeVarInt =  function (bytes) {
     /*jshint bitwise: false*/
 
+    if (!(bytes instanceof Buffer)) {
+        throw new Error('Codec: decodeVarInt() accepts only Buffer instances!');
+    }
+    
     var isNeg = false;
     if (bytes[0] & 0x80) {
         isNeg = true;
